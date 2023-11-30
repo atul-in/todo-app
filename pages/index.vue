@@ -2,12 +2,12 @@
   <div class="main-container">
     <h1>To-do List App</h1>
 
-    <v-btn class="my-5" @click.native.stop="dialog = true">+ New Todo</v-btn>
+    <!-- <v-btn class="my-5" @click.native.stop="isDialogOpen = true">+ New Todo</v-btn> -->
 
 
     <!-- Add todo Dialog -->
     <div>
-      <v-dialog v-model="dialog" persistent max-width="600px">
+      <v-dialog v-model="isDialogOpen" persistent max-width="600px">
         <v-card>
           <v-card-title>
             <span class="text-h5">Create New To-Do</span>
@@ -26,7 +26,7 @@
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="blue darken-1" text @click="dialog = false">
+            <v-btn color="blue darken-1" text @click="isDialogOpen = false">
               Close
             </v-btn>
             <v-btn color="blue darken-1" text @click="addTodo">
@@ -130,6 +130,7 @@
 
 <script>
 // import TodoList from '../components/TodoList.vue';
+import { eventBus } from '../eventBus';
 
 export default {
 //   components: {
@@ -138,7 +139,7 @@ export default {
 
   data() {
     return {
-      dialog: false,
+      isDialogOpen: false,
 
       todoId: null,
       todoDescription: '',
@@ -158,7 +159,14 @@ export default {
     }
   },
 
+  created(){
+    eventBus.$on("open-todo-modal", this.openTodoModal)
+  },
+
   methods: {
+    openTodoModal(){
+      this.isDialogOpen = true;
+    },
     addTodo() {
       this.todos.push({
         todoId: this.todos.length + 1,
@@ -167,7 +175,7 @@ export default {
       })
       this.todoDescription = ''
       this.todoCheckbox = false
-      this.dialog = false
+      this.isDialogOpen = false
       alert("Your todo has been added successfully.")
     },
     
