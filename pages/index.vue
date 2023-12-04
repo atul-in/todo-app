@@ -70,7 +70,7 @@
 
 
     <!-- todo Table -->
-    <div class="d-flex align-center absolute justify-center">
+    <!-- <div class="d-flex align-center absolute justify-center">
       <v-table class="my-5">
         <thead>
           <tr>
@@ -102,32 +102,23 @@
           </tr>
         </tbody>
       </v-table>
+    </div> -->
+
+    <div class="d-flex align-center absolute justify-center">
+      <v-data-table
+        :loading="loading"
+        :headers="headers"
+        :items="todos"
+        class="elevation-1"
+        :server-items-length="totalTodos"
+      >
+      <template #item.index="{item, index}">{{ index+1 }}</template>
+      <template #item.created-at="{item}">{{ $dayjs(created_at).format('YYYY/MM/DD') }}</template>
+      </v-data-table>
     </div>
 
     <v-btn class="red--text" @click.prevent="logout">Logout</v-btn>
 
-
-
-
-
-    <!-- <div class="todoForm my-5">
-      <form @submit.prevent="addTodo">
-        <input type="text" v-model="newTodoItem.title" placeholder="Enter To-do Title?">
-        <input type="text" v-model="newTodoItem.description" placeholder="Add Description">
-        <v-btn type="submit" @click="snackbar = true">Add To-do</v-btn>
-        <v-snackbar v-model="snackbar">
-          {{ snackbarMsg }}
-          <template v-slot:actions>
-            <v-btn color="red" variant="text" @click="snackbar = false">
-              Close
-            </v-btn>
-          </template>
-        </v-snackbar>
-      </form>
-    </div> -->
-    <!-- <ul v-for="(todo, index) in todos" :key="index">
-      <TodoList :todoItem="todo" @delete="deleteTodo(index)" />
-    </ul> -->
   </div>
 </template>
 
@@ -140,24 +131,29 @@ export default {
   //     TodoList,
   //   },
 
+  auth: false,
+
   data() {
     return {
       isDialogOpen: false,
-
+      
       todoId: null,
       todoDescription: '',
       todoCheckbox: false,
-
+      
       editDialog: false,
       todoEditDescription: '',
       currentlyEdit: null,
-
-      todos: [
-        {
-          todoId: 1,
-          todoDescription: "asfdnjawd",
-          todoCheckbox: true
-        }
+      
+      loading: false,
+      totalTodos:0,
+      todos: [],
+      headers:[
+        {text:"S.no.", value:"index", sortable:false},
+        {text:"Title", value:"title", sortable:false},
+        {text:"Description", value:"description", sortable:false},
+        {text:"Created At", value:"created_at", sortable:false},
+        {text:"Action", value:"", sortable:false},
       ]
     }
   },
@@ -166,7 +162,24 @@ export default {
     eventBus.$on("open-todo-modal", this.openTodoModal)
   },
 
+  mounted(){
+    this.fetchTodoData()
+  },
+
   methods: {
+
+    async fetchTodoData(){
+      try {
+        const {data} = await this.$axios.get('/api/tasks');
+        this.todos = data;
+        this.totalTodos = data.length;
+
+        
+      } catch (error) {
+        console.log(error)
+      }
+    },
+
     openTodoModal() {
       this.isDialogOpen = true;
     },

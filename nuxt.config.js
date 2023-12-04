@@ -33,7 +33,14 @@ export default {
   ],
 
   // Modules: https://go.nuxtjs.dev/config-modules
-  modules: ["@nuxtjs/auth-next", "@nuxtjs/axios"],
+  modules: ["@nuxtjs/auth-next", "@nuxtjs/axios", '@nuxtjs/dayjs'],
+
+  dayjs: {
+    locales: ['en', 'fr'],
+    plugins: ['utc', 'timezone'],
+    defaultLocale: 'en',
+    defaultTimezone: 'Asia/Kolkata',
+  },
 
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
   vuetify: {
