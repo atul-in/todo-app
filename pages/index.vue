@@ -1,6 +1,6 @@
 <template>
   <div class="main-container">
-    <h1>To-do List App</h1>
+    <h1 class="text-center">To-do List App</h1>
 
     <!-- <v-btn class="my-5" @click.native.stop="isDialogOpen = true">+ New Todo</v-btn> -->
 
@@ -70,38 +70,41 @@
 
 
     <!-- todo Table -->
-    <v-table class="my-5">
-      <thead>
-        <tr>
-          <th class="text-left" width="100">
-            S. No.
-          </th>
-          <th class="text-left" width="300">
-            Description
-          </th>
-          <th class="text-left" width="200">
-            Completed
-          </th>
-          <th class="text-left" width="200">
-            Actions
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(todo, index) in todos" :key="todo.todoId">
-          <td>{{ index + 1 }}</td>
-          <td>{{ todo.todoDescription }}</td>
-          <td><v-checkbox v-model="todo.todoCheckbox"></v-checkbox></td>
-          <td>
-            <v-card-actions>
-              <v-btn class="blue--text" @click="editTodoDialog(todo)" text>Edit</v-btn>
-              <v-btn class="red--text" @click="deleteTodo(todo.todoId)" text>Remove</v-btn>
-            </v-card-actions>
-          </td>
-        </tr>
-      </tbody>
-    </v-table>
+    <div class="d-flex align-center absolute justify-center">
+      <v-table class="my-5">
+        <thead>
+          <tr>
+            <th class="text-left" width="100">
+              S. No.
+            </th>
+            <th class="text-left" width="300">
+              Description
+            </th>
+            <th class="text-left" width="200">
+              Completed
+            </th>
+            <th class="text-left" width="200">
+              Actions
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(todo, index) in todos" :key="todo.todoId">
+            <td>{{ index + 1 }}</td>
+            <td>{{ todo.todoDescription }}</td>
+            <td><v-checkbox v-model="todo.todoCheckbox"></v-checkbox></td>
+            <td>
+              <v-card-actions>
+                <v-btn class="blue--text" @click="editTodoDialog(todo)" text>Edit</v-btn>
+                <v-btn class="red--text" @click="deleteTodo(todo.todoId)" text>Remove</v-btn>
+              </v-card-actions>
+            </td>
+          </tr>
+        </tbody>
+      </v-table>
+    </div>
 
+    <v-btn class="red--text" @click.prevent="logout">Logout</v-btn>
 
 
 
@@ -133,9 +136,9 @@
 import { eventBus } from '../eventBus';
 
 export default {
-//   components: {
-//     TodoList,
-//   },
+  //   components: {
+  //     TodoList,
+  //   },
 
   data() {
     return {
@@ -159,12 +162,12 @@ export default {
     }
   },
 
-  created(){
+  created() {
     eventBus.$on("open-todo-modal", this.openTodoModal)
   },
 
   methods: {
-    openTodoModal(){
+    openTodoModal() {
       this.isDialogOpen = true;
     },
     addTodo() {
@@ -178,17 +181,17 @@ export default {
       this.isDialogOpen = false
       alert("Your todo has been added successfully.")
     },
-    
+
     editTodoDialog(todo) {
       this.currentlyEdit = todo.todoId;
       this.todoEditDescription = todo.todoDescription;
       this.todoCheckbox = todo.todoCheckbox;
       this.editDialog = true;
     },
-    
+
     saveEditedTodo() {
       const editedTodoIndex = this.todos.findIndex(todo => todo.todoId === this.currentlyEdit);
-      
+
       if (editedTodoIndex !== -1) {
         this.todos[editedTodoIndex].todoDescription = this.todoEditDescription;
         this.todos[editedTodoIndex].todoCheckbox = this.todoCheckbox;
@@ -200,7 +203,16 @@ export default {
     deleteTodo(id) {
       const todoIndex = this.todos.indexOf(id)
       this.todos.splice(todoIndex, 1)
-    }
+    },
+
+    async logout() {
+      try {
+        await this.$auth.logout()
+        this.$router.push('/login')
+      } catch (error) {
+        console.log(error)
+      }
+    },
   },
 }
 </script>
