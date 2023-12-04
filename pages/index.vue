@@ -113,7 +113,7 @@
         :server-items-length="totalTodos"
       >
       <template #item.index="{item, index}">{{ index+1 }}</template>
-      <template #item.created-at="{item}">{{ $dayjs(created_at).format('YYYY/MM/DD') }}</template>
+      <template #item.created_at="{ item }">{{ $dayjs(created_at).format('DD/MM/YYYY') }}</template>
       </v-data-table>
     </div>
 
