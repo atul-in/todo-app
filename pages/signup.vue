@@ -8,9 +8,9 @@
                     <v-text-field v-model="email" label="Email" />
                     <v-text-field v-model="password" label="Password" />
                     <v-text-field v-model="password_confirmation" label="Confirm Password" />
-                    <v-btn type="submit">Sign Up</v-btn>
+                    <v-btn type="submit" color="success" block :loading="loading">Sign Up</v-btn>
                 </form>
-                <div style="margin-top: 20px">
+                <div style="margin-top: 20px" class="text-center">
                     Already got an account ? <nuxt-link to="/login">Login</nuxt-link>
                 </div>
             </div>
@@ -27,18 +27,22 @@ export default {
             email: '',
             password: '',
             password_confirmation: '',
-            error: null
+            role_id:2,
+            error: null,
+            loading: false
         }
     },
     methods: {
         async register() {
             try {
+                this.loading = true
                 await this.$axios.get('/sanctum/csrf-cookie')
                 const registerReponse = await this.$axios.post('/api/signup', {
                     name: this.name,
                     email: this.email,
                     password: this.password,
-                    password_confirmation: this.password_confirmation
+                    password_confirmation: this.password_confirmation,
+                    role_id:this.role_id
                 })
 
 
@@ -59,3 +63,9 @@ export default {
     },
 }
 </script>
+
+<style scoped>
+.container{
+    margin-top: 7rem;
+}
+</style>

@@ -79,13 +79,13 @@
           :footer-props="{ 'items-per-page-options': [5, 10, 50, 100, -1] }" @update:page="handlePageUpdate"
           @update:items-per-page="handlePerPageUpdate" :server-items-length="totalTodos">
           <template #item.index="{ item, index }">{{ index + 1 }}</template>
-          <template #item.created_at="{ item }">{{ $dayjs(created_at).format('DD/MM/YYYY') }}</template>
-          <template #item.completed="{ item }"><v-checkbox v-model="item.completed"
+          <template #item.created_at="{ item, created_at }">{{ $dayjs(created_at).format('DD/MM/YYYY') }}</template>
+          <template #item.completed="{ item }"><v-checkbox v-model="item.completed" :disabled="disabled"
               @change="updatedStatus(item)"></v-checkbox></template>
           <template v-slot:item.action_buttons="{ item }">
 
             <div class="d-flex">
-              <v-btn :loading="item.loading" elevation="0" icon color="green" @click="editTodoData(item)">
+              <v-btn v-if="role_id!=1" :loading="item.loading" elevation="0" icon color="green" @click="editTodoData(item)">
                 <v-icon dark>mdi-pencil</v-icon>
               </v-btn>
 
@@ -118,6 +118,7 @@ export default {
 
   data() {
     return {
+      disabled: this.$auth.user.data.role_id == 1 ? true : false,
       itemIdToDelete:null,
       isDialogOpen: false,
       snackbar: false,
@@ -145,6 +146,7 @@ export default {
       ],
 
       progressbar: false,
+      role_id: this.$auth.user.data.role_id,
 
       editDialog: false,
       todoEditTitle: '',
@@ -191,8 +193,10 @@ export default {
         const { data } = await this.$axios.get(
           `/api/tasks?page=${this.page}&perPage=${this.perPage}&sortBy=${this.sortBy}&desc=${this.sortDesc}`
         );
-
         console.log(this.$auth)
+        
+        console.log(this.$auth.user.data.role_id)
+
         this.todos = data.data.data;
         this.totalTodos = data.data.total;
 
@@ -245,7 +249,7 @@ export default {
       try {
         this.loading = true
         const res = this.$axios.put(`/api/task/${this.editTodoId}`, updatedData)
-        console.log(res)
+        // console.log(res)
         this.editDialog = false
         this.snackbarText = "Your task has been updated."
         this.snackbar = true
