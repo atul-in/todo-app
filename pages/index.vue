@@ -163,6 +163,7 @@ export default {
   },
 
   mounted() {
+    this.snackbar = false
     this.fetchTodoData()
   },
 
@@ -299,6 +300,8 @@ export default {
       try {
         await this.$auth.logout()
         this.$router.push('/login')
+        this.snackbarText = "You are logged out successfully."
+        this.snackbar = true
       } catch (error) {
         console.log(error)
       }
