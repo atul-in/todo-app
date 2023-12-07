@@ -85,11 +85,13 @@
           <template v-slot:item.action_buttons="{ item }">
 
             <div class="d-flex">
-              <v-btn v-if="role_id!=1" :loading="item.loading" elevation="0" icon color="green" @click="editTodoData(item)">
+              <v-btn v-if="userRole != 'admin'" :loading="item.loading" elevation="0" icon color="green"
+                @click="editTodoData(item)">
                 <v-icon dark>mdi-pencil</v-icon>
               </v-btn>
 
-              <v-btn v-if="item.id!=itemIdToDelete" :loading="item.loading" elevation="0" icon color="red" @click="deleteTodo(item.id)">
+              <v-btn v-if="item.id != itemIdToDelete" :loading="item.loading" elevation="0" icon color="red"
+                @click="handleConfirmDialog(item.id)">
                 <v-icon dark>mdi-delete</v-icon>
               </v-btn>
               <v-progress-circular v-else indeterminate color="primary"></v-progress-circular>
@@ -118,8 +120,8 @@ export default {
 
   data() {
     return {
-      disabled: this.$auth.user.data.role_id == 1 ? true : false,
-      itemIdToDelete:null,
+      disabled: this.$auth.user.role[0] == 'admin' ? true : false,
+      itemIdToDelete: null,
       isDialogOpen: false,
       snackbar: false,
       snackbarText: '',
@@ -146,7 +148,7 @@ export default {
       ],
 
       progressbar: false,
-      role_id: this.$auth.user.data.role_id,
+      userRole: this.$auth.user.role[0],
 
       editDialog: false,
       todoEditTitle: '',
@@ -165,6 +167,27 @@ export default {
   },
 
   methods: {
+
+    handleConfirmDialog(todoId) {
+      this.$confirm({
+        message: 'Are you sure?',
+        button: {
+          no: 'No',
+          yes: 'Yes'
+        },
+        /**
+         * Callback Function
+         * @param {Boolean} confirm
+         */
+        callback: (confirm) => {
+          if (confirm) {
+            this.deleteTodo(todoId)
+          } else {
+            return false
+          }
+        }
+      })
+    },
 
     async updatedStatus(todo) {
       console.log(todo.completed)
@@ -193,9 +216,7 @@ export default {
         const { data } = await this.$axios.get(
           `/api/tasks?page=${this.page}&perPage=${this.perPage}&sortBy=${this.sortBy}&desc=${this.sortDesc}`
         );
-        console.log(this.$auth)
-        
-        console.log(this.$auth.user.data.role_id)
+        // console.log(this.$auth)
 
         this.todos = data.data.data;
         this.totalTodos = data.data.total;
@@ -261,7 +282,7 @@ export default {
     },
 
     async deleteTodo(todoId) {
-      this.itemIdToDelete=todoId
+      this.itemIdToDelete = todoId
       try {
         await this.$axios.delete(`/api/task/${todoId}`);
         this.snackbarText = "Your task has been deleted."
@@ -269,8 +290,8 @@ export default {
         this.fetchTodoData();
       } catch (error) {
         console.log(error)
-      } finally{
-        this.itemIdToDelete=null
+      } finally {
+        this.itemIdToDelete = null
       }
     },
 

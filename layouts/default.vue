@@ -3,12 +3,15 @@
     <v-app-bar :clipped-left="clipped" fixed app>
       <v-toolbar-title>{{ appTitle }}</v-toolbar-title>
       <v-spacer />
-      <v-btn v-if="this.role_id != 1 && this.role_id != null" class="m-5 mr-5 blue--text" @click.native.stop="openModal">+ Add Todo</v-btn>
+      <v-btn v-if="this.userRole != 'admin' && this.userRole != null" class="m-5 mr-5 blue--text" @click.native.stop="openModal">+ Add Todo</v-btn>
       <v-btn v-if="isUserLoggedIn" class="m-5 red--text" @click.native.stop="logoutUser">Logout</v-btn>
     </v-app-bar>
     <v-main>
       <v-container>
         <Nuxt />
+        <client-only>
+          <vue-confirm-dialog/>
+        </client-only>
       </v-container>
     </v-main>
   </v-app>
@@ -29,7 +32,7 @@ export default {
       rightDrawer: false,
       isUserLoggedIn: false,
       appTitle: 'TODO App',
-      role_id: null,
+      userRole: null,
     }
   },
 
@@ -37,7 +40,7 @@ export default {
     if (this.$auth && this.$auth.loggedIn) {
       this.isUserLoggedIn = true;
       this.appTitle = "Hello, " + this.$auth.user.data.name;
-      this.role_id = this.$auth.user.data.role_id;
+      this.userRole = this.$auth.user.role[0];
     }
   },
 

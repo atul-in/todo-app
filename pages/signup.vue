@@ -27,7 +27,6 @@ export default {
             email: '',
             password: '',
             password_confirmation: '',
-            role_id:2,
             error: null,
             loading: false
         }
@@ -42,7 +41,6 @@ export default {
                     email: this.email,
                     password: this.password,
                     password_confirmation: this.password_confirmation,
-                    role_id:this.role_id
                 })
 
 
