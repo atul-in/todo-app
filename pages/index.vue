@@ -75,9 +75,18 @@
 
     <div class="d-flex align-center absolute justify-center">
       <v-container>
-        <v-data-table :loading="loading" :headers="headers" :items="todos" class="elevation-1"
-          :footer-props="{ 'items-per-page-options': [5, 10, 50, 100, -1] }" @update:page="handlePageUpdate"
-          @update:items-per-page="handlePerPageUpdate" :server-items-length="totalTodos">
+        <v-data-table 
+          :loading="loading" 
+          :headers="headers" 
+          :items="todos" class="elevation-1"
+          :footer-props="{ 'items-per-page-options': [5, 10, 50, 100, -1] }" 
+          @update:page="handlePageUpdate"
+          @update:items-per-page="handlePerPageUpdate" 
+          :server-items-length="totalTodos"
+          :sort-by.sync="sortBy" 
+          :sort-desc.sync="sortDesc"
+          @update:sort-desc="fetchTodoData"
+          >
           <template #item.index="{ item, index }">{{ index + 1 }}</template>
           <template #item.created_at="{ item, created_at }">{{ $dayjs(created_at).format('DD/MM/YYYY') }}</template>
           <template #item.completed="{ item }"><v-checkbox v-model="item.completed" :disabled="disabled"
@@ -132,6 +141,7 @@ export default {
         completed: false,
         user_id: this.$auth.user.data.id,
       },
+      todos:[],
       sortBy: "created_at",
       sortDesc: true,
       page: 1,
