@@ -3,7 +3,9 @@
     <v-app-bar :clipped-left="clipped" fixed app>
       <v-toolbar-title>{{ appTitle }}</v-toolbar-title>
       <v-spacer />
-      <v-btn v-if="this.userRole != 'admin' && this.userRole != null" class="m-5 mr-5 blue--text" @click.native.stop="openModal">+ Add Todo</v-btn>
+      <v-btn v-if="isUserLoggedIn" class="m-5 mr-5 blue" @click.native.stop="openImportDialog">+ Import Todos</v-btn>
+      <v-btn v-if="isUserLoggedIn" class="m-5 mr-5 green" @click.native.stop="downloadTasks">Download Todos</v-btn>
+      <v-btn v-if="this.userRole != 'admin' && this.userRole != null" class="m-5 mr-5 blue--text" @click.native.stop="openTodoDialog">+ Add Todo</v-btn>
       <v-btn v-if="isUserLoggedIn" class="m-5 red--text" @click.native.stop="logoutUser">Logout</v-btn>
     </v-app-bar>
     <v-main>
@@ -46,12 +48,20 @@ export default {
 
   methods: {
 
-    openModal() {
-      eventBus.$emit("open-todo-modal");
+    openTodoDialog() {
+      eventBus.$emit("open-todo-dialog");
+    },
+
+    openImportDialog() {
+      eventBus.$emit("open-import-dialog");
     },
 
     logoutUser() {
       eventBus.$emit('logout-user');
+    },
+
+    downloadTasks() {
+      eventBus.$emit('download-tasks');
     },
   }
 }
