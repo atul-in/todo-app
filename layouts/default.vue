@@ -1,18 +1,25 @@
 <template>
   <v-app dark>
     <v-app-bar :clipped-left="clipped" fixed app>
-      <v-toolbar-title>{{ appTitle }}</v-toolbar-title>
+
+      <v-toolbar-title>
+        <router-link to="/" class="white--text no-underline">
+          <v-icon class="mr-2 mb-1">mdi-home-variant</v-icon>
+          {{ appTitle }}
+        </router-link>
+      </v-toolbar-title>
       <v-spacer />
-      <v-btn v-if="isUserLoggedIn" class="m-5 mr-5 blue" @click.native.stop="openImportDialog">+ Import Todos</v-btn>
-      <v-btn v-if="isUserLoggedIn" class="m-5 mr-5 green" @click.native.stop="downloadTasks">Download Todos</v-btn>
-      <v-btn v-if="this.userRole != 'admin' && this.userRole != null" class="m-5 mr-5 blue--text" @click.native.stop="openTodoDialog">+ Add Todo</v-btn>
+      <v-btn v-if="isUserLoggedIn" class="m-5 mr-5 blue--text" to="/tasks">My Tasks</v-btn>
+      <!-- <v-btn v-if="isUserLoggedIn" class="m-5 mr-5 blue" @click.native.stop="openImportDialog">+ Import Todos</v-btn>
+      <v-btn v-if="isUserLoggedIn" class="m-5 mr-5 green" @click.native.stop="downloadTasks">Download Todos</v-btn> -->
+      <!-- <v-btn v-if="this.userRole != 'admin' && this.userRole != null" class="m-5 mr-5 blue--text" @click.native.stop="openTodoDialog">+ Add Todo</v-btn> -->
       <v-btn v-if="isUserLoggedIn" class="m-5 red--text" @click.native.stop="logoutUser">Logout</v-btn>
     </v-app-bar>
     <v-main>
       <v-container>
         <Nuxt />
         <client-only>
-          <vue-confirm-dialog/>
+          <vue-confirm-dialog />
         </client-only>
       </v-container>
     </v-main>
@@ -48,21 +55,21 @@ export default {
 
   methods: {
 
-    openTodoDialog() {
-      eventBus.$emit("open-todo-dialog");
-    },
-
-    openImportDialog() {
-      eventBus.$emit("open-import-dialog");
-    },
-
     logoutUser() {
       eventBus.$emit('logout-user');
     },
 
-    downloadTasks() {
-      eventBus.$emit('download-tasks');
-    },
+    //   openTodoDialog() {
+    //     eventBus.$emit("open-todo-dialog");
+    //   },
+
+    //   openImportDialog() {
+    //     eventBus.$emit("open-import-dialog");
+    //   },
+
+    //   downloadTasks() {
+    //     eventBus.$emit('download-tasks');
+    //   },
   }
 }
 </script>
