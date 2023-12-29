@@ -9,11 +9,10 @@
         </router-link>
       </v-toolbar-title>
       <v-spacer />
-      <v-btn v-if="isUserLoggedIn" class="m-5 mr-5 blue--text" to="/tasks">My Tasks</v-btn>
-      <!-- <v-btn v-if="isUserLoggedIn" class="m-5 mr-5 blue" @click.native.stop="openImportDialog">+ Import Todos</v-btn>
-      <v-btn v-if="isUserLoggedIn" class="m-5 mr-5 green" @click.native.stop="downloadTasks">Download Todos</v-btn> -->
-      <!-- <v-btn v-if="this.userRole != 'admin' && this.userRole != null" class="m-5 mr-5 blue--text" @click.native.stop="openTodoDialog">+ Add Todo</v-btn> -->
-      <v-btn v-if="isUserLoggedIn" class="m-5 red--text" @click.native.stop="logoutUser">Logout</v-btn>
+      <v-btn v-if="isUserLoggedIn" class="m-5 mr-5 blue--text" to="/tasks">Tasks</v-btn>
+      <v-btn v-if="isUserLoggedIn && this.userRole != 'admin' && this.userRole != null" class="m-5 mr-5 yellow--text"
+        to="/clients-data">Clients</v-btn>
+      <v-btn v-if="isUserLoggedIn" class="m-5 red--text" @click="logout">Logout</v-btn>
     </v-app-bar>
     <v-main>
       <v-container>
@@ -27,8 +26,6 @@
 </template>
 
 <script>
-import { eventBus } from "@/eventBus";
-
 export default {
   name: 'DefaultLayout',
   data() {
@@ -54,22 +51,16 @@ export default {
   },
 
   methods: {
-
-    logoutUser() {
-      eventBus.$emit('logout-user');
+    async logout() {
+      try {
+        await this.$auth.logout()
+        this.$router.push('/login')
+        this.snackbarText = "You are logged out successfully."
+        this.snackbar = true
+      } catch (error) {
+        console.log(error)
+      }
     },
-
-    //   openTodoDialog() {
-    //     eventBus.$emit("open-todo-dialog");
-    //   },
-
-    //   openImportDialog() {
-    //     eventBus.$emit("open-import-dialog");
-    //   },
-
-    //   downloadTasks() {
-    //     eventBus.$emit('download-tasks');
-    //   },
   }
 }
 </script>

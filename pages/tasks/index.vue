@@ -93,8 +93,8 @@
             <v-container>
                 <v-data-table :loading="loading" :headers="headers" :items="todos" class="elevation-1"
                     :footer-props="{ 'items-per-page-options': [5, 10, 50, 100, -1] }" @update:page="handlePageUpdate"
-                    @update:items-per-page="handlePerPageUpdate" :server-items-length="totalTodos" :sort-by.sync="sortBy" :must-sort="true"
-                    :sort-desc.sync="sortDesc" @update:sort-desc="fetchTodoData">
+                    @update:items-per-page="handlePerPageUpdate" :server-items-length="totalTodos" :sort-by.sync="sortBy"
+                    :must-sort="true" :sort-desc.sync="sortDesc" @update:sort-desc="fetchTodoData">
                     <template v-slot:top>
                         <v-toolbar flat>
                             <v-toolbar-title>My Todo List</v-toolbar-title>
@@ -109,7 +109,7 @@
                             <v-btn class="m-5 mr-5 blue--text" @click="openTodoDialog">+ Add Todo</v-btn>
                         </v-toolbar>
                     </template>
-                    <template #item.index="{ item, index }">{{ index + 1 }}</template>
+                    <template #item.index="{ item, index }">{{ calculateSerialNumber(index) }}</template>
                     <template #item.created_at="{ item, created_at }">{{ $dayjs(created_at).format('DD/MM/YYYY')
                     }}</template>
                     <template #item.completed="{ item }"><v-checkbox v-model="item.completed" :disabled="disabled"
@@ -146,9 +146,9 @@
 </template>
   
 <script>
-import { eventBus } from '../../eventBus';
 
 export default {
+    name: 'Tasks',
 
     data() {
         return {
@@ -174,7 +174,7 @@ export default {
             loading: false,
             totalTodos: 0,
             headers: [
-                { text: "S.no.", value: "index", sortable: true },
+                { text: "S.no.", value: "index" },
                 { text: "Title", value: "title", sortable: true },
                 { text: "Description", value: "description", sortable: true },
                 { text: "Completed", value: "completed", sortable: true },
@@ -192,19 +192,16 @@ export default {
         }
     },
 
-    created() {
-        eventBus.$on("open-todo-dialog", this.openTodoDialog)
-        eventBus.$on("open-import-dialog", this.openImportDialog)
-        eventBus.$on("logout-user", this.logout)
-        eventBus.$on("download-tasks", this.downloadTasks)
-    },
-
     mounted() {
         this.snackbar = false
         this.fetchTodoData()
     },
 
     methods: {
+        calculateSerialNumber(index) {
+            return (this.page - 1) * this.perPage + index + 1;
+        },
+
         async uploadFile() {
             this.loading = true
             if (!this.file) {
@@ -320,29 +317,40 @@ export default {
             this.isDialogOpen = true;
         },
 
+        closeSaveTodoDialog() {
+            this.isDialogOpen = false
+            this.todoData.title = ''
+            this.todoData.description = ''
+            this.todoData.completed = false
+        },
+
+        closeEditTodoDialog(){
+            this.editTodoId = '';
+            this.todoData.title ='';
+            this.todoData.description = '';
+            this.todoData.completed = false;
+            this.editDialog = false;
+        },
+
         async saveTodo() {
             try {
                 this.loading = true
                 await this.$axios.get('/sanctum/csrf-cookie')
                 const res = await this.$axios.post('/api/tasks', this.todoData)
                 // console.log(res)
-                this.isDialogOpen = false
                 this.snackbarText = "Your task has been added."
                 this.snackbar = true
-                this.loading = false
-                this.editTodoId = ''
-                this.todoData.title = ''
-                this.this.todoData.description = ''
-                this.this.todoData.completed = false
+                this.closeSaveTodoDialog();
+                await this.fetchTodoData();
             } catch (error) {
                 console.log(error)
                 this.loading = false
+            } finally {
+                this.loading = false
             }
-            this.fetchTodoData();
         },
 
         editTodoData(todo) {
-            console.log(todo)
             this.editTodoId = todo.id;
             this.todoData.title = todo.title;
             this.todoData.description = todo.description;
@@ -360,13 +368,14 @@ export default {
                 this.loading = true
                 const res = this.$axios.put(`/api/task/${this.editTodoId}`, updatedData)
                 // console.log(res)
-                this.editDialog = false
                 this.snackbarText = "Your task has been updated."
                 this.snackbar = true
-                this.fetchTodoData();
-                this.loading = false
+                this.closeEditTodoDialog();
+                await this.fetchTodoData();
             } catch (error) {
                 console.log(error)
+            } finally {
+                this.loading = false
             }
         },
 
@@ -381,17 +390,6 @@ export default {
                 console.log(error)
             } finally {
                 this.itemIdToDelete = null
-            }
-        },
-
-        async logout() {
-            try {
-                await this.$auth.logout()
-                this.$router.push('/login')
-                this.snackbarText = "You are logged out successfully."
-                this.snackbar = true
-            } catch (error) {
-                console.log(error)
             }
         },
     },
